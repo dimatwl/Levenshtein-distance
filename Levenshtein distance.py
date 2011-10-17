@@ -25,6 +25,44 @@ def getLDTable(inpFirstString, inpSecondString):
                               d[i-1][j-1] + 1)  # a substitution
     return d
 
+def getListOfChangesFromTable(inpLDTable, inpFirstString, inpSecondString):
+    d = inpLDTable
+    s = inpFirstString
+    t = inpSecondString
+    tmpStr = s
+    result = [tmpStr]
+    i = len(s)
+    j = len(t)
+    while i != 0 or j != 0:
+        if i == 0:
+            tmpStr = tmpStr[:i] + t[j-1] + tmpStr[i:] # an insertion
+            j -= 1
+        elif j == 0:
+            tmpStr = tmpStr[:i-1] + '' + tmpStr[i:] # a deletion
+            i -= 1
+        elif d[i-1][j] < d[i][j]:
+            tmpStr = tmpStr[:i-1] + tmpStr[i:] # a deletion
+            i -= 1
+        elif d[i][j-1] < d[i][j]:
+            tmpStr = tmpStr[:i] + t[j-1] + tmpStr[i:] # an insertion
+            j -= 1
+        elif d[i-1][j-1] < d[i][j]:
+            tmpStr = tmpStr[:i-1] + t[j-1] + tmpStr[i:] # a substitution
+            i -= 1
+            j -= 1
+        else:
+            i -= 1
+            j -= 1
+            continue
+        result.append(tmpStr)
+    return  result
+
+
+def getListOfChanges(inpFirstString, inpSecondString):
+    LDTable = getLDTable(inpFirstString,inpSecondString)
+    listOfChanges = getListOfChangesFromTable(LDTable,inpFirstString,inpSecondString)
+    return listOfChanges
+
 def main(inpargv):
     f = codecs.open(str(inpargv[1]), 'r', encoding='utf-16')
     lines = []
@@ -32,8 +70,10 @@ def main(inpargv):
         line = line.replace('\n','')
         line = line.lower()
         lines.append(line)
-    for line in getLDTable(lines[0],lines[1]):
-        print line
+    listOfChanges = getListOfChanges(lines[0],lines[1])
+    for item in listOfChanges:
+        print item
+
 
 
 if __name__ == "__main__":
